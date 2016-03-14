@@ -14,3 +14,12 @@
         </ul>
     </text>
 }
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+            <img src="~/Content/MicrosoftLogo.png" alt="" class="navbar-btn"/>
+        </li>
+        <li>@Html.ActionLink("Sign in with Microsoft", "SignIn", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+    </ul>
+}

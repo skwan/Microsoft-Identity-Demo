@@ -12,10 +12,6 @@ namespace Microsoft_Identity_Demo.Controllers
     {
         public ActionResult Index()
         {
-            if (ClaimsPrincipal.Current.Identity.IsAuthenticated)
-            {
-                ViewBag.Claims = ClaimsPrincipal.Current.Claims;
-            }
             return View();
         }
 
@@ -30,6 +26,17 @@ namespace Microsoft_Identity_Demo.Controllers
         {
             ViewBag.Message = "Your contact page.";
 
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult Claims()
+        {
+            ViewBag.Message = "Display the current user's claims.";
+            if (ClaimsPrincipal.Current.Identity.IsAuthenticated)
+            {
+                ViewBag.Claims = ClaimsPrincipal.Current.Claims;
+            }
             return View();
         }
     }
