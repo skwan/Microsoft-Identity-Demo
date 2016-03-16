@@ -25,20 +25,27 @@ namespace Microsoft_Identity_Demo
             app.UseOpenIdConnectAuthentication(
                     new OpenIdConnectAuthenticationOptions
                     {
-                        // The `Authority` represents the v2.0 endpoint - https://login.microsoftonline.com/common/v2.0 
-                        // The `Scope` describes the permissions that your app will need.  See https://azure.microsoft.com/documentation/articles/active-directory-v2-scopes/
-                        // In a real application you could use issuer validation for additional checks, like making sure the user's organization has signed up for your app, for instance.
+                        //
+                        // Initialize the OpenID Connect middleware.
+                        //
+                        Authority       = "https://login.microsoftonline.com/common/v2.0",
+                        ClientId        = "82c89714-f7a5-4088-9bc0-cd66410889ae",
+                        Scope           = "openid profile",
+                        ResponseType    = "id_token",
+                        RedirectUri     = "https://localhost:44300/",
 
-                        ClientId = "82c89714-f7a5-4088-9bc0-cd66410889ae",
-                        Authority = "https://login.microsoftonline.com/common/v2.0",
-                        RedirectUri = "https://localhost:44300/",
-                        Scope = "openid email profile",
-                        ResponseType = "id_token",
                         PostLogoutRedirectUri = "https://localhost:44300/",
+
+                        /* IMPORTANT:  You must include application logic to decide which tenants are
+                                       subscribers to your service and which are not, and validate
+                                       the issuer value in the token.  Disabling issuer validation
+                                       entirely as in this sample is only correct if you blanket accept
+                                       sign ins from every Microsoft identity. */
                         TokenValidationParameters = new TokenValidationParameters
                         {
                             ValidateIssuer = false,
                         },
+
                         Notifications = new OpenIdConnectAuthenticationNotifications
                         {
                             AuthenticationFailed = OnAuthenticationFailed,

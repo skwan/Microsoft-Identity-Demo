@@ -39,5 +39,11 @@ namespace Microsoft_Identity_Demo.Controllers
             }
             return View();
         }
+
+        [Authorize]
+        public ActionResult Calendar()
+        {
+            return View();
+        }
     }
 }
