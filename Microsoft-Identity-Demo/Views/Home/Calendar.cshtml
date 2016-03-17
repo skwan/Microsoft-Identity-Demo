@@ -5,3 +5,39 @@
 
 <h2>Calendar</h2>
 
+<table class="table table-striped table-bordered table-condensed table-hover">
+    <tr>
+        <th class="claim-type claim-data claim-head">From</th>
+        <th class="claim-data claim-head">Subject</th>
+        <th class="claim-data claim-head">Start</th>
+        <th class="claim-data claim-head">End</th>
+    </tr>
+
+    @foreach (Newtonsoft.Json.Linq.JObject item in ViewBag.Events)
+    {
+        /*
+        var startString = (string)item["start"]["dateTime"];
+        var endString = (string)item["end"]["dateTime"];
+        var startDate = startString.Substring(0, 10);
+        var endDate = endString.Substring(0, 10);
+        var startTime = (Int32.Parse(startString.Substring(11, 2)) - 7).ToString() + startString.Substring(13, 3);
+        var endTime = (Int32.Parse(endString.Substring(11, 2)) - 7).ToString() + endString.Substring(13, 3);
+
+        <tr>
+            <td class="claim-type claim-data">@((string)item["organizer"]["emailAddress"]["address"])</td>
+            <td class="claim-data">@((string)item["subject"])</td>
+            <td class="claim-data">@(startDate)</td>
+            <td class="claim-data">@(startTime)</td>
+            <td class="claim-data">@(endTime)</td>
+        </tr>
+        */
+
+        <tr>
+            <td class="claim-type claim-data">@((string)item["organizer"]["emailAddress"]["address"])</td>
+            <td class="claim-data">@((string)item["subject"])</td>
+            <td class="claim-data">@((string)item["start"]["dateTime"])</td>
+            <td class="claim-data">@((string)item["end"]["dateTime"])</td>
+        </tr>
+
+    }
+</table>

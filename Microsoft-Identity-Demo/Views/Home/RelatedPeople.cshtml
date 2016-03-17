@@ -1,0 +1,25 @@
+﻿
+@{
+    ViewBag.Title = "RelatedPeople";
+}
+
+<h2>Related People</h2>
+
+<table class="table table-striped table-bordered table-condensed table-hover">
+    <tr>
+        <th class="claim-type claim-data claim-head">Name</th>
+        <th class="claim-data claim-head">Title</th>
+        <th class="claim-data claim-head">Email</th>
+        <th class="claim-data claim-head">Source</th>
+    </tr>
+
+    @foreach (Newtonsoft.Json.Linq.JObject item in ViewBag.People)
+    {
+        <tr>
+            <td class="claim-type claim-data">@((string)item["displayName"])</td>
+            <td class="claim-data">@((string)item["title"])</td>
+            <td class="claim-data">@((string)item["emailAddresses"][0]["address"])</td>
+            <td class="claim-data">@((string)item["sources"][0]["type"])</td>
+        </tr>
+    }
+</table>
