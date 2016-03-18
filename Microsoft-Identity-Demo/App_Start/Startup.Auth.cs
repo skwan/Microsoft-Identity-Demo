@@ -33,7 +33,7 @@ namespace Microsoft_Identity_Demo
                         //
                         Authority       = "https://login.microsoftonline.com/common/v2.0",
                         ClientId        = "82c89714-f7a5-4088-9bc0-cd66410889ae",
-                        Scope           = "openid profile offline_access https://graph.microsoft.com/calendars.read https://graph.microsoft.com/people.read",
+                        Scope           = "openid profile offline_access",
                         ResponseType    = "id_token code",
                         RedirectUri     = "https://localhost:44300/",
 
