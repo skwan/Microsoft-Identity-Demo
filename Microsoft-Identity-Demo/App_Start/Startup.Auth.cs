@@ -33,8 +33,8 @@ namespace Microsoft_Identity_Demo
                         //
                         Authority       = "https://login.microsoftonline.com/common/v2.0",
                         ClientId        = "82c89714-f7a5-4088-9bc0-cd66410889ae",
-                        Scope           = "openid email profile offline_access https://graph.microsoft.com/user.read",
-                        ResponseType    = "id_token code",
+                        Scope           = "openid profile",
+                        ResponseType    = "id_token",
                         RedirectUri     = "https://localhost:44300/",
 
                         PostLogoutRedirectUri = "https://localhost:44300/",
@@ -72,24 +72,25 @@ namespace Microsoft_Identity_Demo
                 );
 
             string scopeString = null;
-            string[] scopes = { "https://graph.microsoft.com/user.read" };
+            string[] scopes = null;
 
             notification.AuthenticationTicket.Properties.Dictionary.TryGetValue("scope", out scopeString);
             if (scopeString != null)
             {
                 char[] space = new char[] { ' ' };
                 scopes = scopeString.Split(space);
-            } 
 
-            try
-            {
-                AuthenticationResult result = await client.AcquireTokenByAuthorizationCodeAsync(
-                    scope: scopes,
-                    authorizationCode: notification.Code);
-            }
-            catch (Exception e)
-            {
-                // Nothing here for now.
+                try
+                {
+                    AuthenticationResult result = await client.AcquireTokenByAuthorizationCodeAsync(
+                        scope: scopes,
+                        authorizationCode: notification.Code);
+                }
+                catch (Exception e)
+                {
+                    // Nothing here for now.
+                }
+
             }
 
             return Task.FromResult<object>(0);
