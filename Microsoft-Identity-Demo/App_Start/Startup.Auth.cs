@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.IdentityModel.Tokens;
 using Microsoft.Identity.Client;
 using Microsoft_Identity_Demo.Models;
-using System.IdentityModel.Claims;
+using System.Security.Claims;
 
 namespace Microsoft_Identity_Demo
 {
@@ -33,7 +33,7 @@ namespace Microsoft_Identity_Demo
                         //
                         Authority       = "https://login.microsoftonline.com/common/v2.0",
                         ClientId        = "82c89714-f7a5-4088-9bc0-cd66410889ae",
-                        Scope           = "openid profile offline_access",
+                        Scope           = "openid email profile offline_access https://graph.microsoft.com/user.read",
                         ResponseType    = "id_token code",
                         RedirectUri     = "https://localhost:44300/",
 
@@ -53,6 +53,7 @@ namespace Microsoft_Identity_Demo
                         {
                             AuthenticationFailed = OnAuthenticationFailed,
                             AuthorizationCodeReceived = OnAuthorizationCodeReceived,
+                            RedirectToIdentityProvider = OnRedirectToIdentityProvider,
                         }
                     });
         }
@@ -70,14 +71,21 @@ namespace Microsoft_Identity_Demo
                 userTokenCache:     tokenCache
                 );
 
-            string[] scopes = { "https://graph.microsoft.com/calendars.read", "https://graph.microsoft.com/people.read" };
+            string scopeString = null;
+            string[] scopes = { "https://graph.microsoft.com/user.read" };
+
+            notification.AuthenticationTicket.Properties.Dictionary.TryGetValue("scope", out scopeString);
+            if (scopeString != null)
+            {
+                char[] space = new char[] { ' ' };
+                scopes = scopeString.Split(space);
+            } 
 
             try
             {
                 AuthenticationResult result = await client.AcquireTokenByAuthorizationCodeAsync(
-                    scope:              scopes,
-                    authorizationCode:  notification.Code
-                    );
+                    scope: scopes,
+                    authorizationCode: notification.Code);
             }
             catch (Exception e)
             {
@@ -85,6 +93,17 @@ namespace Microsoft_Identity_Demo
             }
 
             return Task.FromResult<object>(0);
+        }
+        private Task OnRedirectToIdentityProvider (RedirectToIdentityProviderNotification<OpenIdConnectMessage, OpenIdConnectAuthenticationOptions> notification)
+        {
+            if (notification.Request.Path.Value.ToLower() == "/home/getconsent")
+            {
+                notification.ProtocolMessage.Scope = "openid profile email offline_access https://graph.microsoft.com/people.read";
+                notification.ProtocolMessage.ResponseType = "code id_token";
+                notification.ProtocolMessage.LoginHint = ClaimsPrincipal.Current.FindFirst("preferred_username").Value;
+                notification.ProtocolMessage.DomainHint = "organizations";
+            }
+            return Task.FromResult(0);
         }
         private Task OnAuthenticationFailed(AuthenticationFailedNotification<OpenIdConnectMessage, OpenIdConnectAuthenticationOptions> notification)
         {

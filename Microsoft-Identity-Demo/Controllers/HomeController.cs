@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
+using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.OpenIdConnect;
 
 namespace Microsoft_Identity_Demo.Controllers
 {
@@ -38,7 +40,6 @@ namespace Microsoft_Identity_Demo.Controllers
         [Authorize]
         public ActionResult Claims()
         {
-            ViewBag.Message = "Display the current user's claims.";
             if (ClaimsPrincipal.Current.Identity.IsAuthenticated)
             {
                 ViewBag.Claims = ClaimsPrincipal.Current.Claims;
@@ -101,14 +102,21 @@ namespace Microsoft_Identity_Demo.Controllers
                 userTokenCache: tokenCache
                 );
 
+            AuthenticationResult result = null;
             string[] scopes = { "https://graph.microsoft.com/people.read" };
 
-            AuthenticationResult result = await client.AcquireTokenSilentAsync(scopes);
-
-            string graphRequest = "https://graph.microsoft.com/beta/me/people";
+            try
+            {
+                result = await client.AcquireTokenSilentAsync(scopes);
+            }
+            catch (Exception e)
+            {
+                ViewBag.NeedConsent = true;
+                return View();
+            }
 
             HttpClient httpClient = new HttpClient();
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, graphRequest);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "https://graph.microsoft.com/beta/me/people");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", result.Token);
             HttpResponseMessage response = await httpClient.SendAsync(request);
 
@@ -120,8 +128,28 @@ namespace Microsoft_Identity_Demo.Controllers
                 ViewBag.People = people;
                 return View();
             }
-
+            
             return View();
+        }
+        public void GetConsent ()
+        {
+            Dictionary<string, string> scopeDictionary = new Dictionary<string, string>() { { "scope", "https://graph.microsoft.com/people.read" } };
+            HttpContext.GetOwinContext().Authentication.Challenge(new AuthenticationProperties(scopeDictionary) { RedirectUri = "/Home/RelatedPeople" }, OpenIdConnectAuthenticationDefaults.AuthenticationType);
+        }
+        private class ChallengeResult : HttpUnauthorizedResult
+        {
+            public ChallengeResult(AuthenticationProperties properties, string authenticationType)
+            {
+                Properties = properties;
+                Type = authenticationType;
+            }
+
+            public AuthenticationProperties Properties { get; set; }
+            public string Type { get; set; }
+            public override void ExecuteResult(ControllerContext context)
+            {
+                context.HttpContext.GetOwinContext().Authentication.Challenge(Properties, Type);
+            }
         }
     }
 }
